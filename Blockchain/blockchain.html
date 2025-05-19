@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Frontend</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 100%;
+        }
+        h2 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Blockchain App</h1>
+
+        <!-- Register a new user -->
+        <h2>Register User</h2>
+        <input type="text" id="username" placeholder="Enter username">
+        <button class="button" onclick="register_user()">Register</button>
+
+        <!-- Add funds -->
+        <h2>Add Funds</h2>
+        <input type="text" id="add_funds_username" placeholder="Enter username">
+        <input type="number" id="add_funds_amount" placeholder="Enter amount">
+        <button class="button" onclick="add_funds()">Add Funds</button>
+
+        <!-- Sign a transaction -->
+        <h2>Sign Transaction</h2>
+        <input type="text" id="sign_username" placeholder="Enter username" />
+        <input type="number" id="amount" step="any" placeholder="Enter amount" />
+        <button class="button" onclick="signTransaction()">Sign Transaction</button>
+
+        <!-- Create a new transaction -->
+        <h2>Create New Transaction</h2>
+        <input type="text" id="transaction_sender" placeholder="Enter sender address">
+        <input type="text" id="transaction_recipient" placeholder="Enter recipient address">
+        <input type="number" id="transaction_amount" placeholder="Enter amount">
+        <input type="text" id="transaction_signature" placeholder="Paste signature here">
+        <button class="button" onclick="create_transaction()">Create Transaction</button>
+
+        <!-- Mine a new block -->
+        <h2>Mine Block</h2>
+        <button class="button" onclick="mine_block()">Mine Block</button>
+
+        <!-- Display blockchain data -->
+        <div>
+            <h2>Blockchain Data</h2>
+            <div id="chain_output">Click "Chain" button to view blockchain data.</div>
+            <button class="button" onclick="fetchChain()">Chain</button>
+        </div>
+
+        <!-- Get user balance -->
+        <h2>Check Balance</h2>
+        <input type="text" id="balance_username" placeholder="Enter username">
+        <button class="button" onclick="check_balance()">Check Balance</button>
+
+        <!-- Response output -->
+        <h2>Response</h2>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000'; // Backend Flask server URL
+
+        // Register a new user
+        function register_user() {
+            const username = document.getElementById("username").value;
+            if (!username) return alert("Please enter a username.");
+    
+            fetch("http://127.0.0.1:5000/user/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.public_key) {
+                    alert("User registered successfully!");
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+
+        // Add funds to a user account
+        async function add_funds() {
+            const username = document.getElementById('add_funds_username').value;
+            const amount = document.getElementById('add_funds_amount').value;
+            if (!username || !amount) return alert("Please fill out all fields.");
+
+            const data = { username, amount: parseFloat(amount) };
+
+            try {
+                const response = await fetch(`${API_URL}/add_funds`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                document.getElementById('output').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Sign a transaction
+        // Sign a transaction
+async function signTransaction() {
+    const username = document.getElementById('sign_username').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value);
+
+    if (!username || isNaN(amount)) {
+        alert('Please enter a valid username and amount');
+        return;
+    }
+
+    // Fetch and verify the balance before proceeding
+    try {
+        const balanceResponse = await fetch(`${API_URL}/balance/${username}`);
+        const balanceData = await balanceResponse.json();
+
+        // Log the raw balance data for debugging
+        console.log('Raw balance data:', balanceData);
+
+        // Convert balance and amount to numbers (if they aren't already)
+        const userBalance = parseFloat(balanceData.balance);  // Ensure balance is a number
+        console.log(`Balance for ${username}: ${userBalance}`);  // Log balance for user
+
+        if (isNaN(userBalance)) {
+            return alert("Error: Balance data is not a valid number.");
+        }
+
+        if (userBalance < amount) {
+            return alert("Insufficient balance to complete this transaction.");
+        }
+
+        // Proceed to sign the transaction if balance is sufficient
+        const response = await fetch(`${API_URL}/user/sign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, amount })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(`Transaction signed successfully! Signature: ${data.signature}`);
+            document.getElementById('output').innerText = `Signature: ${data.signature}`;
+        } else {
+            alert(`Error: ${data.error}`);
+            document.getElementById('output').innerText = `Error: ${data.error}`;
+        }
+    } catch (error) {
+        console.error('Unexpected error while checking balance or signing transaction:', error);
+        alert('An unexpected error occurred. Please try again later.');
+    }
+}
+
+
+        // Create a new transaction
+        async function create_transaction() {
+            const sender = document.getElementById('transaction_sender').value;
+            const recipient = document.getElementById('transaction_recipient').value;
+            const amount = document.getElementById('transaction_amount').value;
+            const signature = document.getElementById('transaction_signature').value; 
+
+            if (!sender || !recipient || !amount || !signature) {
+                return alert("Please fill out all fields, including the signature.");
+            }
+
+            // Check balance first
+            try {
+                const balanceResponse = await fetch(`${API_URL}/balance/${sender}`);
+                const balanceData = await balanceResponse.json();
+
+                if (balanceData.balance < amount) {
+                    return alert("Insufficient balance to complete this transaction.");
+                }
+            } catch (error) {
+                console.error("Error fetching balance:", error);
+                return alert("Error checking balance. Please try again.");
+            }
+
+            const data = {
+                sender,
+                recipient,
+                amount: parseFloat(amount),
+                signature 
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/transactions/new`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                document.getElementById('output').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Mine a new block
+        async function mine_block() {
+            try {
+                const response = await fetch(`${API_URL}/mine`);
+                const result = await response.json();
+                document.getElementById('output').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Fetch the blockchain when "Chain" button is clicked
+        async function fetchChain() {
+            try {
+                const response = await fetch(`${API_URL}/chain`);
+                if (!response.ok) throw new Error("Network response was not ok");
+                const result = await response.json();
+                document.getElementById('chain_output').innerText = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error("Error fetching chain:", error);
+                alert("Error fetching chain. Please try again.");
+            }
+        }
+
+        // Check user balance
+        async function check_balance() {
+            const username = document.getElementById('balance_username').value;
+            if (!username) return alert("Please enter a username.");
+
+            try {
+                const response = await fetch(`${API_URL}/balance/${username}`);
+                if (!response.ok) throw new Error("Network response was not ok");
+                const result = await response.json();
+                document.getElementById('output').innerText = `Balance for ${username}: ${result.balance}`;
+            } catch (error) {
+                console.error("Error fetching balance:", error);
+                alert("Error fetching balance. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>

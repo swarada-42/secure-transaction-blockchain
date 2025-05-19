@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f9;
+            overflow: hidden;
+            margin-top: -20px;
+        }
+
+        /* Container Styles */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            max-width: 400px; /* Maximum width for the container */
+            width: 100%; /* Full width on smaller screens */
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading Styles */
+        h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center; /* Centering the heading */
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Button Styles */
+        .button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 28px; /* Adjusted font size for smaller screens */
+            }
+
+            input[type="text"],
+            input[type="number"],
+            .button {
+                font-size: 16px; /* Consistent font size */
+                padding: 10px; /* Adjust padding for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 24px; /* Further reduced heading size for mobile */
+            }
+
+            input[type="text"],
+            input[type="number"],
+            .button {
+                font-size: 14px; /* Further reduced input and button font size */
+                padding: 8px; /* Further reduced padding */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create New Transaction</h2>
+        <input type="text" id="transaction_sender" placeholder="Enter sender address">
+        <input type="text" id="transaction_recipient" placeholder="Enter recipient address">
+        <input type="number" id="transaction_amount" placeholder="Enter amount">
+        <input type="text" id="transaction_signature" placeholder="Paste signature here">
+        <button class="button" onclick="create_transaction()">Create Transaction</button>
+        <script src="scripts/register.js"></script>
+    </div>
+    <p id="output"></p>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register User</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #ddddde;
+        }
+        
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 120px;
+            font-size: 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+           
+        }
+        
+        .button:hover {
+            background-color: #45a049;
+        }
+        
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 20%;
+            font-size: 20px;
+        }
+        
+        p {
+            margin-top: 200px;
+            font-size: 45px;
+        }
+        
+    </style>
+</head>
+<body>
+    <p><b>Register User</b></p>
+    <input type="text" id="username" placeholder="Enter username"><br/><br/>
+    <button class="button" onclick="register_user()">Register</button>
+    <script src="scripts/register.js"></script>
+</body>
+</html>
